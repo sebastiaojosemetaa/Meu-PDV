@@ -115,10 +115,15 @@ elif selected == "PDV":
 elif selected == "Vendas":
     st.markdown("<h2>🧾 Histórico de Vendas Realizadas</h2>", unsafe_allow_html=True)
     vendas_exemplo = pd.DataFrame([
-        {"ID Venda": 101, "Cliente": "Carlos Alberto", "Itens": 3, "Total": R$ 45.50, "Data": "24/08/2026"},
-        {"ID Venda": 102, "Cliente": "Maria Silva", "Itens": 1, "Total": R$ 13.00, "Data": "24/08/2026"}
+        {"ID Venda": 101, "Cliente": "Carlos Alberto", "Itens": 3, "Total": 45.50, "Data": "24/08/2026"},
+        {"ID Venda": 102, "Cliente": "Maria Silva", "Itens": 1, "Total": 13.00, "Data": "24/08/2026"}
     ])
-    st.dataframe(vendas_exemplo, use_container_width=True, hide_index=True)
+    st.dataframe(
+        vendas_exemplo, 
+        column_config={"Total": st.column_config.NumberColumn("Total", format="R$ %.2f")},
+        use_container_width=True, 
+        hide_index=True
+    )
 
 elif selected == "Swagger":
     st.markdown("<h2>🔌 Documentação da API (Swagger)</h2>", unsafe_allow_html=True)
