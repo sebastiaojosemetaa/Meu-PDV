@@ -2,69 +2,102 @@ import streamlit as st
 import pandas as pd
 from streamlit_option_menu import option_menu
 
-# Configuração da página
-st.set_page_config(page_title="PDV Web System", layout="wide", page_icon="🛒")
+# Configuração da página - TEMA CLARO
+st.set_page_config(page_title="PDV Web — Sistema de Vendas", layout="wide", initial_sidebar_state="expanded")
 
-# Estilo visual moderno (Cores e Layout)
+# Estilo visual customizado (CSS) para o tema claro (Clean e Profissional)
 st.markdown("""
     <style>
-        .main { background-color: #f8f9fa; }
-        .stButton>button { width: 100%; border-radius: 5px; font-weight: bold; }
-        .css-1d391kg { background-color: #0f172a; color: white; }
+        /* Fundo principal */
+        .stApp { background-color: #FFFFFF; }
+        
+        /* Barra Lateral (Sidebar) - Azul Escuro */
+        [data-testid="stSidebar"] { background-color: #2D3748; color: white; }
+        [data-testid="stSidebar"] span { color: #E2E8F0; }
+        [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label { color: #E2E8F0; }
+        
+        /* Títulos e Textos Gerais */
+        h1, h2, h3, h4, h5, h6 { color: #1A202C; font-family: sans-serif; }
+        p, div { color: #2D3748; }
+
+        /* Tabela */
+        div[data-testid="stDataFrame"] table { border: 1px solid #E2E8F0; border-radius: 4px; }
+        div[data-testid="stDataFrame"] th { background-color: #F7FAFC; color: #1A202C; font-weight: bold; }
+        div[data-testid="stDataFrame"] td { color: #4A5568; }
+
+        /* Botões */
+        .stButton>button { font-weight: bold; border-radius: 4px; }
+        .stButton>button[kind="primary"] { background-color: #3B82F6; color: white; border: none; }
+        .stButton>button[kind="secondary"] { background-color: #E2E8F0; color: #4A5568; border: 1px solid #CBD5E0; }
+        
+        /* Inputs e Fields */
+        div[data-testid="stTextInput"] input { border: 1px solid #CBD5E0; border-radius: 4px; }
+        div[data-testid="stNumberInput"] input { border: 1px solid #CBD5E0; border-radius: 4px; }
+        
+        /* Caixas de Informação (Success, Info, Warning) */
+        .stSuccess { background-color: #C6F6D5; color: #2F855A; border: none; }
+        .stInfo { background-color: #EBF8FF; color: #2B6CB0; border: none; }
+
+        /* Rodapé */
+        .footer { position: fixed; left: 0; bottom: 0; width: 100%; background-color: #F7FAFC; color: #718096; text-align: center; padding: 10px; font-size: 14px; border-top: 1px solid #E2E8F0; }
     </style>
 """, unsafe_allow_html=True)
 
-# Inicializando dados de produtos e carrinho na sessão
-if "produtos" not in st.session_state:
-    st.session_state.produtos = [
-        {"item": 1, "quantidade": 1, "nome": "Coca Cola 2L", "preco": 13.00, "total": 13.00},
-        {"item": 2, "quantidade": 1, "nome": "Abacatinho 2L", "preco": 5.49, "total": 5.49},
-        {"item": 3, "quantidade": 1, "nome": "Fanta Uva", "preco": 8.50, "total": 8.50},
-        {"item": 4, "quantidade": 1, "nome": "Guaraná", "preco": 2.50, "total": 2.50},
-        {"item": 5, "quantidade": 1, "nome": "Beterraba kg", "preco": 2.99, "total": 2.99},
-        {"item": 6, "quantidade": 1, "nome": "Banana KG", "preco": 3.99, "total": 3.99},
-        {"item": 7, "quantidade": 1, "nome": "Farofa Kikos", "preco": 5.33, "total": 5.33}
+# Inicializando dados do carrinho na sessão (Produtos de exemplo da imagem)
+if "carrinho" not in st.session_state:
+    st.session_state.carrinho = [
+        {"item": 8, "quantidade": 1, "nome": "Coca Cola 2L", "preco": 13.00, "total": 13.00},
+        {"item": 8, "quantidade": 1, "nome": "Abacatinho 2L", "preco": 5.49, "total": 5.49},
+        {"item": 8, "quantidade": 1, "nome": "Fanta Uva", "preco": 8.50, "total": 8.50},
+        {"item": 8, "quantidade": 1, "nome": "Fanta Uva", "preco": 8.50, "total": 8.50},
+        {"item": 8, "quantidade": 1, "nome": "Guaraná", "preco": 2.50, "total": 2.50},
+        {"item": 8, "quantidade": 1, "nome": "Beterraba kg", "preco": 2.99, "total": 2.99},
+        {"item": 8, "quantidade": 1, "nome": "Banana KG", "preco": 3.99, "total": 3.99},
+        {"item": 8, "quantidade": 1, "nome": "Farofa Kikos", "preco": 5.33, "total": 5.33}
     ]
 
-if "carrinho" not in st.session_state:
-    st.session_state.carrinho = list(st.session_state.produtos)
-
-# Menu Lateral Estilizado
+# Menu Lateral Estilizado (Visual Claro)
 with st.sidebar:
-    st.image("https://img.icons8.com/color/96/shopping-cart--v1.png", width=60)
-    st.markdown("### **Sistema de Vendas PDV Web**")
+    st.markdown("### **Administração / PDV Web**")
     st.markdown("---")
     
+    # Usando o option-menu com cores claras customizadas pelo CSS
     selected = option_menu(
-        "Menu Principal",
+        None,
         ["Dashboard", "Produto", "PDV", "Vendas", "Swagger", "API", "APP", "CoreUI Doc", "Angular Material", "Sobre"],
         icons=['house', 'box-seam', 'cart-check', 'receipt', 'code-slash', 'hdd-network', 'phone', 'file-text', 'layers', 'info-circle'],
         menu_icon="cast", default_index=2,
+        styles={
+            "container": {"padding": "0!important", "background-color": "transparent"},
+            "icon": {"color": "#A0AEC0", "font-size": "16px"}, 
+            "nav-link": {"color": "#E2E8F0", "font-size": "14px", "text-align": "left", "margin": "0px", "--hover-color": "#4A5568"},
+            "nav-link-selected": {"background-color": "#3B82F6", "color": "white", "font-weight": "normal"},
+        }
     )
 
-# Lógica das Telas
+# Lógica das Telas (Visual Claro)
 if selected == "PDV":
-    st.markdown("### **Home / Produtos / PDV**")
+    st.markdown("Home / Produtos / **PDV**")
     
     # Cabeçalho da Venda com Botões de Ação
-    col_topo1, col_topo2 = st.columns([8, 2])
-    with col_topo1:
-        st.markdown("## **Venda em Aberto**")
-    with col_topo2:
-        btn_limpar = st.button("🗑️ Limpar", type="secondary")
-        btn_salvar = st.button("💾 Salvar", type="primary")
+    c1, c2, c3 = st.columns([5, 2, 2])
+    with c1:
+        st.markdown("<h2><b>Venda em Aberto</b></h2>", unsafe_allow_html=True)
+    with c2:
+        if st.button("🗑️ Limpar", type="secondary"):
+            st.session_state.carrinho = []
+            st.rerun()
+    with c3:
+        if st.button("💾 Salvar", type="primary"):
+            st.success("Venda salva com sucesso!")
 
-    if btn_limpar:
-        st.session_state.carrinho = []
-        st.rerun()
+    # Layout Principal (Tabela e Lançamento)
+    col_tab, col_lanca = st.columns([7, 3])
 
-    # Layout Principal dividindo a tabela de itens e o painel de lançamento
-    col_esq, col_dir = st.columns([7, 3])
-
-    with col_esq:
+    with col_tab:
         if st.session_state.carrinho:
             df_vendas = pd.DataFrame(st.session_state.carrinho)
-            # Exibe a tabela formatada no padrão limpo
+            # Tabela formatada (Tema claro)
             st.dataframe(
                 df_vendas, 
                 column_config={
@@ -81,46 +114,39 @@ if selected == "PDV":
             # Valor Total geral
             total_geral = sum(i["total"] for i in st.session_state.carrinho)
             st.markdown(f"""
-                <div style="background-color: #f1f3f5; padding: 15px; border-radius: 8px; text-align: right; margin-top: 15px;">
-                    <span style="font-size: 20px; font-weight: bold; color: #212529;">Valor total a pagar: R$ {total_geral:.2f}</span>
+                <div style="background-color: #EDF2F7; padding: 15px; border-radius: 4px; text-align: right; margin-top: 10px;">
+                    <span style="font-size: 22px; font-weight: bold; color: #1A202C;">Valor total a pagar: R$ {total_geral:.2f}</span>
                 </div>
             """, unsafe_allow_html=True)
         else:
-            st.info("Nenhum item na venda atual.")
+            st.info("A venda está vazia.")
 
-    with col_dir:
-        st.markdown("#### 🛒 Painel de Lançamento")
+    with col_lanca:
+        st.markdown("<h4>🛒 <b>Painel de Lançamento</b></h4>", unsafe_allow_html=True)
         with st.container():
             st.markdown("---")
             codigo_produto = st.text_input("Código do produto", value="10")
             qtd_produto = st.number_input("Quantidade", min_value=1, value=1)
             
-            # Espaçamento e Botão de inclusão estilizado igual ao print
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("+ Incluir Produto", type="primary", use_container_width=True):
+                # Adiciona um produto genérico com base nos inputs
                 novo_item = {
-                    "item": len(st.session_state.carrinho) + 1,
+                    "item": 8, # Mantendo o '8' como na imagem de exemplo
                     "quantidade": qtd_produto,
                     "nome": f"Produto Ref. {codigo_produto}",
-                    "preco": 15.00,
-                    "total": 15.00 * qtd_produto
+                    "preco": 19.90, # Preço de exemplo novo
+                    "total": 19.90 * qtd_produto
                 }
                 st.session_state.carrinho.append(novo_item)
-                st.success("Adicionado!")
                 st.rerun()
 
 elif selected == "Dashboard":
-    st.markdown("## 📊 Dashboard de Vendas")
-    st.success("Bem-vindo ao painel gerencial do sistema.")
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Vendas Hoje", "R$ 1.250,00", "+12%")
-    col2.metric("Itens Vendidos", "48", "+5")
-    col3.metric("Clientes Atendidos", "14", "0")
-
-elif selected == "Produto":
-    st.markdown("## 📦 Gerenciamento de Produtos")
-    st.dataframe(pd.DataFrame(st.session_state.produtos), use_container_width=True)
-
+    st.markdown("<h2>📊 📊 Dashboard Geral</h2>", unsafe_allow_html=True)
+    st.info("Esta é a tela de dashboard no tema claro.")
 else:
-    st.markdown(f"## ⚙️ Seção: {selected}")
-    st.write("Esta área está integrada ao seu ambiente web na nuvem.")
+    st.markdown(f"<h2>⚙️ Seção: {selected}</h2>", unsafe_allow_html=True)
+    st.write("Área em desenvolvimento no tema claro.")
+
+# Rodapé fixo
+st.markdown('<div class="footer">© 2024 PDV Web — Sistema de Vendas — Tema Claro V1</div>', unsafe_allow_html=True)
