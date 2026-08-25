@@ -1,81 +1,126 @@
 import streamlit as st
 import pandas as pd
+from streamlit_option_menu import option_menu
 
-st.set_page_config(page_title="PDV — Frente de Caixa", layout="wide", page_icon="🛒")
+# Configuração da página
+st.set_page_config(page_title="PDV Web System", layout="wide", page_icon="🛒")
 
-st.title("🛒 PDV — Frente de Caixa (Múltiplos Produtos)")
-st.warning("⚠️ Atenção: Não há nenhum caixa aberto no momento.")
+# Estilo visual moderno (Cores e Layout)
+st.markdown("""
+    <style>
+        .main { background-color: #f8f9fa; }
+        .stButton>button { width: 100%; border-radius: 5px; font-weight: bold; }
+        .css-1d391kg { background-color: #0f172a; color: white; }
+    </style>
+""", unsafe_allow_html=True)
 
-# Menu Lateral
-st.sidebar.title("Acesso ao Sistema")
-menu = st.sidebar.radio("Navegação", [
-    "PDV — Frente de Caixa", 
-    "Abertura e Fechamento de Caixa", 
-    "Estoque de Produtos", 
-    "Cadastros"
-])
-
+# Inicializando dados de produtos e carrinho na sessão
 if "produtos" not in st.session_state:
     st.session_state.produtos = [
-        {"nome": "ABACATE", "fornecedor": "BAHIA", "grupo": "FRUTAS", "preco": 117.00, "estoque": 15},
-        {"nome": "ARROZ 5KG", "fornecedor": "TIO JOÃO", "grupo": "GRÃOS", "preco": 28.50, "estoque": 30}
+        {"item": 1, "quantidade": 1, "nome": "Coca Cola 2L", "preco": 13.00, "total": 13.00},
+        {"item": 2, "quantidade": 1, "nome": "Abacatinho 2L", "preco": 5.49, "total": 5.49},
+        {"item": 3, "quantidade": 1, "nome": "Fanta Uva", "preco": 8.50, "total": 8.50},
+        {"item": 4, "quantidade": 1, "nome": "Guaraná", "preco": 2.50, "total": 2.50},
+        {"item": 5, "quantidade": 1, "nome": "Beterraba kg", "preco": 2.99, "total": 2.99},
+        {"item": 6, "quantidade": 1, "nome": "Banana KG", "preco": 3.99, "total": 3.99},
+        {"item": 7, "quantidade": 1, "nome": "Farofa Kikos", "preco": 5.33, "total": 5.33}
     ]
 
 if "carrinho" not in st.session_state:
-    st.session_state.carrinho = []
+    st.session_state.carrinho = list(st.session_state.produtos)
 
-if menu == "PDV — Frente de Caixa":
-    st.header("⚡ Frente de Caixa (PDV)")
-    cliente = st.selectbox("Cliente do Atendimento", ["Carlos Alberto", "Maria Silva", "Cliente Balcão"])
+# Menu Lateral Estilizado
+with st.sidebar:
+    st.image("https://img.icons8.com/color/96/shopping-cart--v1.png", width=60)
+    st.markdown("### **Sistema de Vendas PDV Web**")
+    st.markdown("---")
     
-    nomes_produtos = [p["nome"] for p in st.session_state.produtos]
-    produto_escolhido = st.selectbox("Produto", nomes_produtos)
-    prod_obj = next(p for p in st.session_state.produtos if p["nome"] == produto_escolhido)
-    
-    quantidade = st.number_input("Quantidade", min_value=1.0, value=1.0, step=1.0)
-    preco_venda = st.number_input("Preço de Venda (R$)", value=float(prod_obj["preco"]), step=1.0)
-    
-    total_item = quantidade * preco_venda
-    st.info(f"**Total do Item:** R$ {total_item:.2f}")
-    
-    if st.button("Incluir Produto ao Carrinho", type="primary"):
-        st.session_state.carrinho.append({
-            "Cliente": cliente,
-            "Produto": prod_obj["nome"],
-            "Quantidade": quantidade,
-            "Preço Un.": preco_venda,
-            "Total": total_item
-        })
-        st.success("Item adicionado com sucesso!")
+    selected = option_menu(
+        "Menu Principal",
+        ["Dashboard", "Produto", "PDV", "Vendas", "Swagger", "API", "APP", "CoreUI Doc", "Angular Material", "Sobre"],
+        icons=['house', 'box-seam', 'cart-check', 'receipt', 'code-slash', 'hdd-network', 'phone', 'file-text', 'layers', 'info-circle'],
+        menu_icon="cast", default_index=2,
+    )
 
-    st.subheader("📦 Itens no Carrinho")
-    if st.session_state.carrinho:
-        df_carrinho = pd.DataFrame(st.session_state.carrinho)
-        st.dataframe(df_carrinho, use_container_width=True)
-        
-        total_geral = sum(item["Total"] for item in st.session_state.carrinho)
-        st.markdown(f"### 💰 Total a Pagar: R$ {total_geral:.2f}")
-        
-        if st.button("Finalizar Venda"):
-            st.success("Venda finalizada com sucesso!")
-            st.session_state.carrinho = []
-            st.rerun()
-    else:
-        st.write("Carrinho vazio.")
+# Lógica das Telas
+if selected == "PDV":
+    st.markdown("### **Home / Produtos / PDV**")
+    
+    # Cabeçalho da Venda com Botões de Ação
+    col_topo1, col_topo2 = st.columns([8, 2])
+    with col_topo1:
+        st.markdown("## **Venda em Aberto**")
+    with col_topo2:
+        btn_limpar = st.button("🗑️ Limpar", type="secondary")
+        btn_salvar = st.button("💾 Salvar", type="primary")
 
-elif menu == "Estoque de Produtos":
-    st.header("📦 Estoque")
+    if btn_limpar:
+        st.session_state.carrinho = []
+        st.rerun()
+
+    # Layout Principal dividindo a tabela de itens e o painel de lançamento
+    col_esq, col_dir = st.columns([7, 3])
+
+    with col_esq:
+        if st.session_state.carrinho:
+            df_vendas = pd.DataFrame(st.session_state.carrinho)
+            # Exibe a tabela formatada no padrão limpo
+            st.dataframe(
+                df_vendas, 
+                column_config={
+                    "item": "Item",
+                    "quantidade": "Quantidade",
+                    "nome": "Nome",
+                    "preco": st.column_config.NumberColumn("Preço", format="R$ %.2f"),
+                    "total": st.column_config.NumberColumn("Total", format="R$ %.2f")
+                },
+                hide_index=True,
+                use_container_width=True
+            )
+            
+            # Valor Total geral
+            total_geral = sum(i["total"] for i in st.session_state.carrinho)
+            st.markdown(f"""
+                <div style="background-color: #f1f3f5; padding: 15px; border-radius: 8px; text-align: right; margin-top: 15px;">
+                    <span style="font-size: 20px; font-weight: bold; color: #212529;">Valor total a pagar: R$ {total_geral:.2f}</span>
+                </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.info("Nenhum item na venda atual.")
+
+    with col_dir:
+        st.markdown("#### 🛒 Painel de Lançamento")
+        with st.container():
+            st.markdown("---")
+            codigo_produto = st.text_input("Código do produto", value="10")
+            qtd_produto = st.number_input("Quantidade", min_value=1, value=1)
+            
+            # Espaçamento e Botão de inclusão estilizado igual ao print
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("+ Incluir Produto", type="primary", use_container_width=True):
+                novo_item = {
+                    "item": len(st.session_state.carrinho) + 1,
+                    "quantidade": qtd_produto,
+                    "nome": f"Produto Ref. {codigo_produto}",
+                    "preco": 15.00,
+                    "total": 15.00 * qtd_produto
+                }
+                st.session_state.carrinho.append(novo_item)
+                st.success("Adicionado!")
+                st.rerun()
+
+elif selected == "Dashboard":
+    st.markdown("## 📊 Dashboard de Vendas")
+    st.success("Bem-vindo ao painel gerencial do sistema.")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Vendas Hoje", "R$ 1.250,00", "+12%")
+    col2.metric("Itens Vendidos", "48", "+5")
+    col3.metric("Clientes Atendidos", "14", "0")
+
+elif selected == "Produto":
+    st.markdown("## 📦 Gerenciamento de Produtos")
     st.dataframe(pd.DataFrame(st.session_state.produtos), use_container_width=True)
 
-elif menu == "Abertura e Fechamento de Caixa":
-    st.header("🔒 Controle de Caixa")
-    st.radio("Status Atual", ["Fechado", "Aberto"])
-
-elif menu == "Cadastros":
-    st.header("📝 Cadastrar Produto")
-    novo_nome = st.text_input("Nome do Produto")
-    novo_preco = st.number_input("Preço (R$)", min_value=0.0, value=10.0)
-    if st.button("Salvar"):
-        if novo_nome:
-            st.session_state.produtos.append({"nome": novo_nome.upper(), "fornecedor": "GERAL", "grupo": "GERAL", "preco": novo_preco, "estoque": 10})
-            st.success("Cadastrado com sucesso!")
+else:
+    st.markdown(f"## ⚙️ Seção: {selected}")
+    st.write("Esta área está integrada ao seu ambiente web na nuvem.")
