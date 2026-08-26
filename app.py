@@ -79,7 +79,6 @@ elif selected == "Produto":
             st.rerun()
 
 elif selected == "PDV":
-    <img  src="https://i.ibb.co/S69XqSw/logopdv.png" />
     st.markdown("Home / Produtos / **PDV**")
     c1, c2, c3 = st.columns([5, 2, 2])
     with c1:
